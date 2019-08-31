@@ -1,33 +1,97 @@
-rm -r outputs
-mkdir -p outputs
-cd outputs
+#!/bin/sh
 
-for name in ../inputs/*.ani; do
-    name=$(basename $name .ani)
-    mkdir -p $name
-    cd $name
-    cp ../../inputs/$name.ani .
-    ../../ani2ico/ani2ico $name.ani
-    rm $name.ani
-    for f in $name*.ico; do
-        filename=$(basename "$f")
-        png="${filename%.*}".png
-        convert $f $png
-        identify -format '%w 1 1 %f 200\n' $png >> $name.xcg
-    done
-    xcursorgen $name.xcg $name
-    cd ..
+# A POSIX variable
+OPTIND=1         # Reset in case getopts has been used previously in the shell.
+
+flag=0
+indir=$(dirname "${VAR}")
+outdir=$indir
+scriptpath="$( cd "$(dirname "$0")" ; pwd -P )"
+
+while getopts ":hf:F:o:" opt; do
+	case $opt in
+	h)
+		show_help
+		exit 0
+		;;
+	f)
+		if [ ${file: -4} == ".cur" ]
+		then
+			name=$(basename "$name" .cur)
+			mkdir -p "$outdir/$name"
+			cd "$outdir/$name"
+			cp "$indir/$name.cur" .
+			convert "$name.cur" "$name.png"
+			identify -format '%w 1 1 %f\n' "$name.png" >> "$name.xcg"
+			xcursorgen "$name.xcg" "$name"
+		elif [ ${file: -4} == ".ani" ]
+		then
+			name=$(basename "$name" .ani)
+			mkdir -p "$outdir/$name"
+			cd "$outdir/$name"
+			cp "$indir/$name.ani" .
+			"scriptpath/ani2ico/ani2ico" "$name.ani"
+			rm "$name.ani"
+			for f in "$name*.ico"; do
+				filename=$(basename "$f")
+				png="${filename%.*}".png
+				convert "$f" "$png"
+				identify -format '%w 1 1 %f 200\n' "$png" >> "$name.xcg"
+			done
+			xcursorgen "$name.xcg" "$name"
+		else
+			echo "$OPTARG is an invalid file. It must have a .cur or .ani extension." >&2
+			;;
+		fi
+		flag=1
+		;;
+	F)
+		for name in "$indir/*.cur"; do
+			name=$(basename "$name" .cur)
+			mkdir -p "$outdir/$name"
+			cd "$outdir/$name"
+			cp "$indir/$name.cur" .
+			convert "$name.cur" "$name.png"
+			identify -format '%w 1 1 %f\n' "$name.png" >> "$name.xcg"
+			xcursorgen "$name.xcg" "$name"
+		done
+		for name in "$indir/*.ani"; do
+			name=$(basename "$name" .ani)
+			mkdir -p "$outdir/$name"
+			cd "$outdir/$name"
+			cp "$indir/$name.ani" .
+			"scriptpath/ani2ico/ani2ico" "$name.ani"
+			rm "$name.ani"
+			for f in "$name*.ico"; do
+				filename=$(basename "$f")
+				png="${filename%.*}".png
+				convert "$f" "$png"
+				identify -format '%w 1 1 %f 200\n' "$png" >> "$name.xcg"
+			done
+			xcursorgen "$name.xcg" "$name"
+		done
+		flag=1
+		;;
+	o)
+		outdir=$OPTARG
+		;;
+	\?)
+		echo "Invalid option: -$OPTARG" >&2
+		show_help
+		exit 1
+		;;
+	:)
+		echo "Option -$OPTARG requires an argument." >&2
+		show_help
+		exit 1
+		;;
+	esac
 done
 
-for name in ../inputs/*.cur; do
-    name=$(basename $name .cur)
-    mkdir -p $name
-    cd $name
-    cp ../../inputs/$name.cur .
-    convert $name.cur $name.png
-    identify -format '%w 1 1 %f\n' $name.png >> $name.xcg
-    xcursorgen $name.xcg $name
-    cd ..
-done
+shift $((OPTIND-1))
 
-cd ..
+[ "${1:-}" = "--" ] && shift
+
+show_help () {
+	
+}
