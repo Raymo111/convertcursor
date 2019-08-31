@@ -20,7 +20,7 @@ while getopts ":hf:F:o:" opt; do
 		exit 0
 		;;
 	f)
-		if [ ${file: -4} == ".cur" ]
+		if [ ${OPTARG: -4} == ".cur" ]
 		then
 			name=$(basename "$OPTARG" .cur)
 			mkdir -p "$outdir/$name"
@@ -29,7 +29,7 @@ while getopts ":hf:F:o:" opt; do
 			convert "$name.cur" "$name.png"
 			identify -format '%w 1 1 %f\n' "$name.png" >> "$name.xcg"
 			xcursorgen "$name.xcg" "$name"
-		elif [ ${file: -4} == ".ani" ]
+		elif [ ${OPTARG: -4} == ".ani" ]
 		then
 			name=$(basename "$OPTARG" .ani)
 			mkdir -p "$outdir/$name"
