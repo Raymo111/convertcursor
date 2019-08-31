@@ -10,7 +10,7 @@ scriptpath="$( cd "$(dirname "$0")" ; pwd -P )"
 
 show_help () {
 	echo -e "Welcome to convertcursor, which helps you convert your Windows cursors to Linux.\nImageMagick is the only required dependency.\nTo use this program, do:\nconvertcursor [options]\nThe options are as follows:\n-h\tShows this help menu\n-f [file]\tConvert a file\n-F [folder]\tConvert a folder
-\n-o [path]\tOutput to directory (default is the original directory of the file) (make sure you omit the ending '/')"\nNote: To convert multiple files or folders, simply use -f or -F multiple times, like so:\nconvertcursor -f file1 -f file2 -F folder1 -F folder2 -o /path/to/output/folder
+\n-o [path]\tOutput to directory (default is the original directory of the file) (make sure you omit the ending '/')\nNote: To convert multiple files or folders, simply use -f or -F multiple times, like so:\nconvertcursor -f file1 -f file2 -F folder1 -F folder2 -o /path/to/output/folder
 }
 
 while getopts ":hf:F:o:" opt; do
