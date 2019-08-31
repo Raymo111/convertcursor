@@ -4,7 +4,7 @@
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
 flag=0
-indir=$(dirname "${VAR}")
+indir=$(dirname "$OPTARG")
 outdir=$indir
 scriptpath="$( cd "$(dirname "$0")" ; pwd -P )"
 
@@ -22,7 +22,7 @@ while getopts ":hf:F:o:" opt; do
 	f)
 		if [ ${file: -4} == ".cur" ]
 		then
-			name=$(basename "$name" .cur)
+			name=$(basename "$OPTARG" .cur)
 			mkdir -p "$outdir/$name"
 			cd "$outdir/$name"
 			cp "$indir/$name.cur" .
@@ -31,7 +31,7 @@ while getopts ":hf:F:o:" opt; do
 			xcursorgen "$name.xcg" "$name"
 		elif [ ${file: -4} == ".ani" ]
 		then
-			name=$(basename "$name" .ani)
+			name=$(basename "$OPTARG" .ani)
 			mkdir -p "$outdir/$name"
 			cd "$outdir/$name"
 			cp "$indir/$name.ani" .
@@ -50,7 +50,7 @@ while getopts ":hf:F:o:" opt; do
 		flag=1
 		;;
 	F)
-		for name in "$indir/*.cur"; do
+		for name in "$OPTARG/*.cur"; do
 			name=$(basename "$name" .cur)
 			mkdir -p "$outdir/$name"
 			cd "$outdir/$name"
@@ -59,7 +59,7 @@ while getopts ":hf:F:o:" opt; do
 			identify -format '%w 1 1 %f\n' "$name.png" >> "$name.xcg"
 			xcursorgen "$name.xcg" "$name"
 		done
-		for name in "$indir/*.ani"; do
+		for name in "$OPTARG/*.ani"; do
 			name=$(basename "$name" .ani)
 			mkdir -p "$outdir/$name"
 			cd "$outdir/$name"
