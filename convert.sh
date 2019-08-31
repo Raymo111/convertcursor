@@ -41,7 +41,6 @@ while getopts ":hf:F:o:" opt; do
 			xcursorgen "$name.xcg" "$name"
 		else
 			echo "$OPTARG is an invalid file. It must have a .cur or .ani extension." >&2
-			;;
 		fi
 		flag=1
 		;;
