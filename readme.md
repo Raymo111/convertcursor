@@ -9,6 +9,7 @@
 Option | Description
 --- | ---
 `-h` | Shows this help menu
+`-v` | Be verbose, output more info (useful for debugging)
 `-f [file]` | Convert a file
 `-F [folder]` | Convert a folder
 `-o [path]`| Output to directory (default is the original directory of the file) (make sure you omit the ending `/`)

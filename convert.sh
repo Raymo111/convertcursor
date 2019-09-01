@@ -4,79 +4,125 @@
 OPTIND=1         # Reset in case getopts has been used previously in the shell.
 
 flag=0
-indir=$(dirname "$OPTARG")
-outdir=$indir
+o=0
 scriptpath="$( cd "$(dirname "$0")" ; pwd -P )"
+verbose=0
 
 show_help () {
-	echo -e "Welcome to convertcursor, which helps you convert your Windows cursors to Linux.\nImageMagick is the only required dependency.\nTo use this program, do:\nconvertcursor [options]\nThe options are as follows:\n-h\tShows this help menu\n-f [file]\tConvert a file\n-F [folder]\tConvert a folder
+	echo -e "Welcome to convertcursor, which helps you convert your Windows cursors to Linux.\nImageMagick is the only required dependency.\nTo use this program, do:\nconvertcursor [options]\nThe options are as follows:\n-h\t\tShows this help menu\n-v\t\tBe verbose, output more info (useful for debugging)\n-f [file]\tConvert a file\n-F [folder]\tConvert a folder
 \n-o [path]\tOutput to directory (default is the original directory of the file) (make sure you omit the ending '/')\nNote: To convert multiple files or folders, simply use -f or -F multiple times, like so:\nconvertcursor -f file1 -f file2 -F folder1 -F folder2 -o /path/to/output/folder"
 }
 
-while getopts ":hf:F:o:" opt; do
+while getopts ":hvf:F:o:" opt; do
 	case $opt in
 	h)
 		show_help
 		exit 0
 		;;
+	v)	verbose=1
+		;;
 	f)
+		indir=$(dirname "$OPTARG")
+		if [ $o == 0 ]; then outdir=$indir; fi
 		if [ ${OPTARG: -4} == ".cur" ]
 		then
+			if [ $verbose == 1 ]; then echo -e "Performing convert operation on file: $OPTARG\nIndir: $indir\nOutdir: $outdir\nScript path: $scriptpath"; fi
 			name=$(basename "$OPTARG" .cur)
+			if [ $verbose == 1 ]; then echo "Name of file: $name"; fi
 			mkdir -p "$outdir/$name"
+			if [ $verbose == 1 ]; then echo "Made directory: $outdir/$name"; fi
 			cd "$outdir/$name"
+			if [ $verbose == 1 ]; then echo "Entered directory: $outdir/$name"; fi
 			cp "$indir/$name.cur" .
-			convert "$name.cur" "$name.png"
-			identify -format '%w 1 1 %f\n' "$name.png" >> "$name.xcg"
-			xcursorgen "$name.xcg" "$name"
+			if [ $verbose == 1 ]; then echo "Copied $indir/$name.cur"; fi
+			convert "$name.cur" "file.png"
+			if [ $verbose == 1 ]; then echo "Converted to png"; fi
+			identify -format '%w 1 1 %f\n' "file.png" >> "file.xcg"
+			if [ $verbose == 1 ]; then echo "xcg created"; fi
+			xcursorgen "file.xcg" "$name"
+			if [ $verbose == 1 ]; then echo "Cursor generated"; fi
+			find . ! -name "$name" -type f -exec rm -f {} +
+			if [ $verbose == 1 ]; then echo "Removed intermediary files"; fi
 		elif [ ${OPTARG: -4} == ".ani" ]
 		then
+			if [ $verbose == 1 ]; then echo -e "Performing convert operation on file: $OPTARG\nIndir: $indir\nOutdir: $outdir\nScript path: $scriptpath"; fi
 			name=$(basename "$OPTARG" .ani)
+			if [ $verbose == 1 ]; then echo "Name of file: $name"; fi
 			mkdir -p "$outdir/$name"
+			if [ $verbose == 1 ]; then echo "Made directory: $outdir/$name"; fi
 			cd "$outdir/$name"
-			cp "$indir/$name.ani" .
-			"scriptpath/ani2ico/ani2ico" "$name.ani"
-			rm "$name.ani"
-			for f in "$name*.ico"; do
+			if [ $verbose == 1 ]; then echo "Entered directory: $outdir/$name"; fi
+			cp "$indir/$name.ani" file.ani
+			if [ $verbose == 1 ]; then echo "Copied $indir/$name.ani"; fi
+			"$scriptpath/ani2ico/ani2ico" "file.ani"
+			if [ $verbose == 1 ]; then echo "Converted ani to ico's"; fi
+			for f in "file*.ico"; do
 				filename=$(basename "$f")
 				png="${filename%.*}".png
 				convert "$f" "$png"
-				identify -format '%w 1 1 %f 200\n' "$png" >> "$name.xcg"
+				if [ $verbose == 1 ]; then echo "Converted to png"; fi
+				identify -format '%w 1 1 %f 200\n' "$png" >> "file.xcg"
+				if [ $verbose == 1 ]; then echo "xcg created"; fi
 			done
-			xcursorgen "$name.xcg" "$name"
+			xcursorgen "file.xcg" "$name"
+			if [ $verbose == 1 ]; then echo "Cursor generated"; fi
+			find . ! -name "$name" -type f -exec rm -f {} +
+			if [ $verbose == 1 ]; then echo "Removed intermediary files"; fi
 		else
 			echo "$OPTARG is an invalid file. It must have a .cur or .ani extension." >&2
 		fi
 		flag=1
 		;;
 	F)
+		indir=$(dirname "$OPTARG")
+		if [ $o == 0 ]; then outdir=$indir; fi
+		if [ $verbose == 1 ]; then echo -e "Performing convert operation on file: $OPTARG\nIndir: $indir\nOutdir: $outdir\nScript path: $scriptpath"; fi
 		for name in "$OPTARG/*.cur"; do
 			name=$(basename "$name" .cur)
+			if [ $verbose == 1 ]; then echo "Name of file: $name"; fi
 			mkdir -p "$outdir/$name"
+			if [ $verbose == 1 ]; then echo "Made directory: $outdir/$name"; fi
 			cd "$outdir/$name"
+			if [ $verbose == 1 ]; then echo "Entered directory: $outdir/$name"; fi
 			cp "$indir/$name.cur" .
-			convert "$name.cur" "$name.png"
-			identify -format '%w 1 1 %f\n' "$name.png" >> "$name.xcg"
-			xcursorgen "$name.xcg" "$name"
+			if [ $verbose == 1 ]; then echo "Copied $indir/$name.cur"; fi
+			convert "$name.cur" "file.png"
+			if [ $verbose == 1 ]; then echo "Converted to png"; fi
+			identify -format '%w 1 1 %f\n' "file.png" >> "file.xcg"
+			if [ $verbose == 1 ]; then echo "xcg created"; fi
+			xcursorgen "file.xcg" "$name"
+			if [ $verbose == 1 ]; then echo "Cursor generated"; fi
+			find . ! -name "$name" -type f -exec rm -f {} +
+			if [ $verbose == 1 ]; then echo "Removed intermediary files"; fi
 		done
 		for name in "$OPTARG/*.ani"; do
 			name=$(basename "$name" .ani)
+			if [ $verbose == 1 ]; then echo "Name of file: $name"; fi
 			mkdir -p "$outdir/$name"
+			if [ $verbose == 1 ]; then echo "Made directory: $outdir/$name"; fi
 			cd "$outdir/$name"
-			cp "$indir/$name.ani" .
-			"scriptpath/ani2ico/ani2ico" "$name.ani"
-			rm "$name.ani"
-			for f in "$name*.ico"; do
+			if [ $verbose == 1 ]; then echo "Entered directory: $outdir/$name"; fi
+			cp "$indir/$name.ani" file.ani
+			if [ $verbose == 1 ]; then echo "Copied $indir/$name.ani"; fi
+			"$scriptpath/ani2ico/ani2ico" "file.ani"
+			if [ $verbose == 1 ]; then echo "Converted ani to ico's"; fi
+			for f in "file*.ico"; do
 				filename=$(basename "$f")
 				png="${filename%.*}".png
 				convert "$f" "$png"
-				identify -format '%w 1 1 %f 200\n' "$png" >> "$name.xcg"
+				if [ $verbose == 1 ]; then echo "Converted to png"; fi
+				identify -format '%w 1 1 %f 200\n' "$png" >> "file.xcg"
+				if [ $verbose == 1 ]; then echo "xcg created"; fi
 			done
-			xcursorgen "$name.xcg" "$name"
+			xcursorgen "file.xcg" "$name"
+			if [ $verbose == 1 ]; then echo "Cursor generated"; fi
+			find . ! -name "$name" -type f -exec rm -f {} +
+			if [ $verbose == 1 ]; then echo "Removed intermediary files"; fi
 		done
 		flag=1
 		;;
 	o)
+		o=1
 		outdir=$OPTARG
 		;;
 	\?)
