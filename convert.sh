@@ -9,8 +9,23 @@ scriptpath="$( cd "$(dirname "$0")" ; pwd -P )"
 verbose=0
 
 show_help () {
-	echo -e "Welcome to convertcursor, which helps you convert your Windows cursors to Linux.\nImageMagick is the only required dependency.\nTo use this program, do:\nconvertcursor [options]\nThe options are as follows:\n-h\t\tShows this help menu\n-v\t\tBe verbose, output more info (useful for debugging)\n-f [file]\tConvert a file\n-F [folder]\tConvert a folder
-\n-o [path]\tOutput to directory (default is the original directory of the file) (make sure you omit the ending '/')\nNote: To convert multiple files or folders, simply use -f or -F multiple times, like so:\nconvertcursor -f file1 -f file2 -F folder1 -F folder2 -o /path/to/output/folder"
+	echo -e "Welcome to convertcursor, which helps you convert your Windows cursors to Linux.\n
+				ImageMagick is the only required dependency.\n
+				To use this program, do:\nconvertcursor [options]\n
+				The options are as follows:\n
+				-h\t\tShows this help menu\n
+				-v\t\tBe verbose, output more info (useful for debugging)\n
+				-o [path]\tOutput to directory (default is the original directory of the file) (make sure you omit the ending '/')\n
+				-f [file]\tConvert a file\n
+				-F [folder]\tConvert a folder\n
+				Note: To convert multiple files or folders, simply use -f or -F multiple times, like so:\n
+				convertcursor -f file1 -f file2 -F folder1 -F folder2 -o /path/to/output/folder\n
+				Bugs I can't fix:\n
+				 - Make sure you use full paths, starting with '/'. Don't do '~/file', do '/home/<username>/file'
+				 - Use '-v' first, then '-o', then '-f' and/or '-F'
+				 If you don't like these restrictions then feel free to submit a PR fixing it.
+				 #### Final note: DO NOT RUN THIS PROGRAM WITH `SUDO`. I AM NOT RESPONSIBLE FOR ANYTHING BAD THAT HAPPENS TO YOUR COMPUTER WHEN USING THIS PROGRAM. ####
+			"
 }
 
 while getopts ":hvf:F:o:" opt; do
@@ -74,10 +89,12 @@ while getopts ":hvf:F:o:" opt; do
 		flag=1
 		;;
 	F)
-		indir=$(dirname "$OPTARG")
-		if [ $o == 0 ]; then outdir=$indir; fi
-		if [ $verbose == 1 ]; then echo -e "Performing convert operation on file: $OPTARG\nIndir: $indir\nOutdir: $outdir\nScript path: $scriptpath"; fi
-		for name in "$OPTARG/*.cur"; do
+		dir=$(sed 's/ /\\ /g' <<< "$OPTARG")
+		if [ $verbose == 1 ]; then echo "Performing convert operation on folder: $dir"; fi
+		for name in $dir/*.cur; do
+			indir=$(dirname "$name")
+			if [ $o == 0 ]; then outdir=$indir; fi
+			if [ $verbose == 1 ]; then echo -e "Indir: $indir\nOutdir: $outdir\nScript path: $scriptpath"; fi
 			name=$(basename "$name" .cur)
 			if [ $verbose == 1 ]; then echo "Name of file: $name"; fi
 			mkdir -p "$outdir/$name"
@@ -95,7 +112,10 @@ while getopts ":hvf:F:o:" opt; do
 			find . ! -name "$name" -type f -exec rm -f {} +
 			if [ $verbose == 1 ]; then echo "Removed intermediary files"; fi
 		done
-		for name in "$OPTARG/*.ani"; do
+		for name in $dir/*.ani; do
+			indir=$(dirname "$name")
+			if [ $o == 0 ]; then outdir=$indir; fi
+			if [ $verbose == 1 ]; then echo -e "Indir: $indir\nOutdir: $outdir\nScript path: $scriptpath"; fi
 			name=$(basename "$name" .ani)
 			if [ $verbose == 1 ]; then echo "Name of file: $name"; fi
 			mkdir -p "$outdir/$name"
